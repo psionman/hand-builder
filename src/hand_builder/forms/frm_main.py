@@ -48,6 +48,8 @@ class AppFrame:
 
         # tk variables
         self.pbn = tk.StringVar(value="")
+        self.hand_length = tk.IntVar(value=0)
+        self.hand_data = tk.StringVar(value="")
         for rank in RANKS:
             for suit in SUITS:
                 self.card_selected[f"{rank}{suit}"] = tk.BooleanVar(
@@ -116,26 +118,39 @@ class AppFrame:
 
     def _pbn_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
-        label = ttk.Label(frame, text="PBN:")
-        label.pack()
-        copy_frame = self._pbn_copy_frame(frame)
-        copy_frame.pack()
-        return frame
 
-    def _pbn_copy_frame(self, master: tk.Frame) -> ttk.Frame:
-        frame = ttk.Frame(master)
+        row = 0
+        label = ttk.Label(frame, text="PBN:")
+        label.grid(row=row, column=0, sticky=tk.E)
+
         entry = ttk.Entry(
             frame,
-            width=50,
+            width=20,
             state="readonly",
             takefocus=False,
             textvariable=self.pbn,
         )
-        entry.pack(side=tk.LEFT, padx=PAD)
+
+        entry.grid(row=row, column=1, columnspan=2, sticky=tk.W)
         button = ttk.Button(
             frame, text="Copy", command=lambda: copy(self.pbn.get())
         )
-        button.pack(side=tk.LEFT, padx=PAD)
+        button.grid(row=row, column=3, sticky=tk.W, padx=PAD)
+
+        row += 1
+        label = ttk.Label(frame, text="Hand Length:")
+        label.grid(row=row, column=0, sticky=tk.E)
+        self.hand_length_entry = ttk.Entry(
+            frame,
+            width=10,
+            state="readonly",
+            takefocus=False,
+            textvariable=self.hand_length,
+            style="orange-red-fg.TEntry",
+        )
+        self.hand_length_entry.grid(row=row, column=1, sticky=tk.W)
+        label = ttk.Label(frame, textvariable=self.hand_data)
+        label.grid(row=row, column=2, sticky=tk.W)
         return frame
 
     def _selection_frame(self, master: tk.Frame) -> ttk.Frame:
@@ -173,6 +188,12 @@ class AppFrame:
 
     def _card_checked(self, rank: str, suit: str) -> None:
         cards = self._get_checked_cards()
+        self.hand_length_entry.configure(style="orange-red-fg.TEntry")
+        if len(cards) == 13:
+            self.hand_length_entry.configure(style="green-fg.TEntry")
+        if len(cards) > 13:
+            self.hand_length_entry.configure(style="red-fg.TEntry")
+        self.hand_length.set(len(cards))
 
         self.pbn.set(self.to_pbn(cards))
         self._value_changed(cards)
@@ -191,6 +212,7 @@ class AppFrame:
     def _hand_image(self) -> None:
         self._clear_hand_frame()
         hand = Hand(self.pbn.get())
+        self.hand_data.set(f"{hand.shape} {hand.hcp}")
         for column, card in enumerate(hand.cards):
             img = Image.open(Path(IMAGE_DIR, f"{card.name}.png"))
             scale = 100 / img.height

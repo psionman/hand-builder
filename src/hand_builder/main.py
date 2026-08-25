@@ -8,6 +8,7 @@ import argparse
 import os
 import sys
 import tkinter as tk
+from tkinter import ttk
 
 import clipboard
 from dotenv import load_dotenv
@@ -42,6 +43,8 @@ def main() -> None:
     root.protocol("WM_DELETE_WINDOW", root.destroy)
 
     get_styles()
+    style = ttk.Style()
+    style.configure("orange-red-fg.TEntry", foreground="#FF4500")
 
     if args.module:
         try:
