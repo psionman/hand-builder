@@ -8,7 +8,7 @@ from tkinter import ttk
 
 from bridgeobjects import Hand
 from clipboard import copy
-from PIL import Image, ImageTk
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 from psiutils.buttons import ButtonFrame
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize
@@ -32,6 +32,10 @@ SUIT_SYMBOLS = {
     "C": "♣",
     "S": "♠",
 }
+
+FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+FONT = ImageFont.truetype(FONT_PATH, 16)
+CARD_IMAGE_HEIGHT = 100
 
 
 class AppFrame:
@@ -82,9 +86,6 @@ class AppFrame:
             lambda e: window_resize(root, __file__, config),
         )
 
-        style = ttk.Style()
-        style.configure("red.TCheckbutton", foreground="red")
-
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
         frame.rowconfigure(1, weight=1)
@@ -102,29 +103,33 @@ class AppFrame:
         return frame
 
     def _hand_frame(self, master: tk.Frame) -> ttk.Frame:
-        frame = ttk.Frame(master, style="green.TFrame")
+        frame = ttk.Frame(
+            master, style="green.TFrame", height=CARD_IMAGE_HEIGHT + 10
+        )
+        frame.grid_propagate(False)
         frame.rowconfigure(0, weight=1)
-        # frame.columnconfigure(0, weight=1)
         return frame
 
     def _selection_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
+        self.card_label_images = {}
 
         for column, rank in enumerate(RANKS):
             frame.columnconfigure(column, weight=1)
             for row, suit in enumerate(SUITS):
                 frame.rowconfigure(row, weight=1)
-                button_style = ""
-                if suit in ["H", "D"]:
-                    button_style = "red.TCheckbutton"
+                frame.rowconfigure(row, weight=1)
+                card = f"{rank}{suit}"
+                img = self._make_label_image(rank, suit)
+                self.card_label_images[card] = img
+
                 check_button = ttk.Checkbutton(
                     frame,
-                    text=f"{rank}{SUIT_SYMBOLS[suit]}",
-                    variable=self.card_selected[f"{rank}{suit}"],
+                    image=img,
+                    variable=self.card_selected[card],
                     command=lambda rank=rank, suit=suit: self._card_checked(
                         rank, suit
                     ),
-                    style=button_style,
                 )
                 check_button.grid(row=row, column=column)
         return frame
@@ -169,6 +174,22 @@ class AppFrame:
             left_third = img.crop((0, 0, width // 2, height))
             img = ImageTk.PhotoImage(left_third)
             self._place_image(img, column)
+
+    def _make_label_image(self, rank: str, suit: str) -> ImageTk.PhotoImage:
+        symbol = SUIT_SYMBOLS[suit]
+        colour = "red" if suit in ("H", "D") else "black"
+
+        # measure widths so the two runs sit flush together
+        dummy = Image.new("RGBA", (1, 1))
+        d = ImageDraw.Draw(dummy)
+        rank_w = d.textlength(rank, font=FONT)
+        symbol_w = d.textlength(symbol, font=FONT)
+
+        img = Image.new("RGBA", (int(rank_w + symbol_w) + 4, 20), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        draw.text((0, 0), rank, font=FONT, fill="black")
+        draw.text((rank_w, 0), symbol, font=FONT, fill=colour)
+        return ImageTk.PhotoImage(img)
 
     def _place_image(self, img: ImageTk.PhotoImage, column: int) -> None:
         label = ttk.Label(self.hand_frame, image=img)
