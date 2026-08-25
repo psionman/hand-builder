@@ -21,6 +21,21 @@ wheels = [
 ]
 
 [[package]]
+name = "bridgeobjects"
+version = "0.1.34"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/89/cf/7839a9f3dcf51d2ecf72243e6a6b2cb260fad5d09033fb6e151aed8b72d4/bridgeobjects-0.1.34.tar.gz", hash = "sha256:e00568beaea5325d0f3f954cdb09891d63f45552c0ce49ac6b27735637276aeb", size = 57714, upload-time = "2026-08-15T11:41:21.685Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/3c/e831f9586745e7a5ccf52dc55a16fbec91336a352b1548ac0e77cd6daa2e/bridgeobjects-0.1.34-py3-none-any.whl", hash = "sha256:294c870b9e7de0d40364dbb5bb0e0c3baa24d4d105fcc5f0849fd50fb089c672", size = 74972, upload-time = "2026-08-15T11:41:22.723Z" },
+]
+
+[[package]]
 name = "clipboard"
 version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -54,6 +69,7 @@ name = "hand-builder"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "bridgeobjects" },
     { name = "clipboard" },
     { name = "dotenv" },
     { name = "psiutils" },
@@ -68,6 +84,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bridgeobjects", specifier = ">=0.1.34" },
     { name = "clipboard", specifier = ">=0.0.4" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "psiutils", specifier = ">=1.0.2" },

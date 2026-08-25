@@ -6,6 +6,9 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
+from bridgeobjects import Hand
+from clipboard import copy
+from PIL import Image, ImageTk
 from psiutils.buttons import ButtonFrame
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize
@@ -20,6 +23,16 @@ txt = Text()
 RANKS = "AKQJT98765432"
 SUITS = "SHDC"
 
+IMAGE_DIR = (
+    "/home/jeff/projects/bfg/bfg_api/src/locale/en_GB/images/card_images"
+)
+SUIT_SYMBOLS = {
+    "H": "♥",
+    "D": "♦",
+    "C": "♣",
+    "S": "♠",
+}
+
 
 class AppFrame:
     """Create AppFrame for Hand builder application."""
@@ -28,6 +41,7 @@ class AppFrame:
         self.root = root
         self.card_selected = {}
         self.pbn = ""
+        self.hand_frame = None
 
         # tk variables
         for rank in RANKS:
@@ -68,14 +82,17 @@ class AppFrame:
             lambda e: window_resize(root, __file__, config),
         )
 
+        style = ttk.Style()
+        style.configure("red.TCheckbutton", foreground="red")
+
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
         frame.rowconfigure(1, weight=1)
         frame.columnconfigure(0, weight=1)
 
         row = 0
-        hand_frame = self._hand_frame(frame)
-        hand_frame.grid(row=row, column=0, sticky=tk.NSEW)
+        self.hand_frame = self._hand_frame(frame)
+        self.hand_frame.grid(row=row, column=0, sticky=tk.NSEW)
         row += 1
 
         selection_frame = self._selection_frame(frame)
@@ -85,9 +102,9 @@ class AppFrame:
         return frame
 
     def _hand_frame(self, master: tk.Frame) -> ttk.Frame:
-        frame = ttk.Frame(master, style="red.TFrame")
+        frame = ttk.Frame(master, style="green.TFrame")
         frame.rowconfigure(0, weight=1)
-        frame.columnconfigure(0, weight=1)
+        # frame.columnconfigure(0, weight=1)
         return frame
 
     def _selection_frame(self, master: tk.Frame) -> ttk.Frame:
@@ -97,13 +114,17 @@ class AppFrame:
             frame.columnconfigure(column, weight=1)
             for row, suit in enumerate(SUITS):
                 frame.rowconfigure(row, weight=1)
+                button_style = ""
+                if suit in ["H", "D"]:
+                    button_style = "red.TCheckbutton"
                 check_button = ttk.Checkbutton(
                     frame,
-                    text=f"{rank}{suit}",
+                    text=f"{rank}{SUIT_SYMBOLS[suit]}",
                     variable=self.card_selected[f"{rank}{suit}"],
                     command=lambda rank=rank, suit=suit: self._card_checked(
                         rank, suit
                     ),
+                    style=button_style,
                 )
                 check_button.grid(row=row, column=column)
         return frame
@@ -118,16 +139,45 @@ class AppFrame:
         return frame
 
     def _card_checked(self, rank: str, suit: str) -> None:
+        cards = self._get_checked_cards()
+
+        self.pbn = self.to_pbn(cards)
+        self._value_changed(cards)
+        self._hand_image()
+
+    def _get_checked_cards(self) -> list[str]:
         cards = []
         for key, value in self.card_selected.items():
             if value.get():
                 cards.append(key)
-        self._value_changed(cards)
-        self._print_hand(cards)
+        return cards
 
     def _print_hand(self, cards: list[str]) -> None:
-        self.pbn = self.to_pbn(cards)
         print(self.pbn)
+
+    def _hand_image(self) -> None:
+        self._clear_hand_frame()
+        hand = Hand(self.pbn)
+        for column, card in enumerate(hand.cards):
+            img = Image.open(Path(IMAGE_DIR, f"{card.name}.png"))
+            scale = 100 / img.height
+            img = img.resize(
+                (int(img.width * scale), int(img.height * scale)),
+                Image.LANCZOS,
+            )
+            width, height = img.size
+            left_third = img.crop((0, 0, width // 2, height))
+            img = ImageTk.PhotoImage(left_third)
+            self._place_image(img, column)
+
+    def _place_image(self, img: ImageTk.PhotoImage, column: int) -> None:
+        label = ttk.Label(self.hand_frame, image=img)
+        label.image = img  # Keep a reference - important!!!!
+        label.grid(row=0, column=column)
+
+    def _clear_hand_frame(self) -> None:
+        for widget in self.hand_frame.winfo_children():
+            widget.destroy()
 
     def to_pbn(self, cards: list[str]) -> str:
         by_suit = {suit: [] for suit in SUITS}
@@ -149,7 +199,9 @@ class AppFrame:
         self.button_frame.enable(enable)
 
     def _process(self, *args) -> None:
-        pass
+        cards = self._get_checked_cards()
+        self._print_hand(cards)
+        copy(self.pbn)
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()

@@ -22,5 +22,5 @@ USER_DATA_FILE = Path(USER_DATA_DIR, "data.json")
 
 # GUI
 APP_TITLE = "Hand builder"
-ICON_FILE = Path(Path(__file__).parent, "images", "icon.png")
+ICON_FILE = Path(Path(__file__).parent, "images", "cards-playing-outline.png")
 DEFAULT_GEOMETRY = "300x250"
