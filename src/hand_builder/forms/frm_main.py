@@ -17,18 +17,24 @@ from hand_builder.text import Text
 
 txt = Text()
 
+RANKS = "AKQJT98765432"
+SUITS = "SHDC"
+
 
 class AppFrame:
     """Create AppFrame for Hand builder application."""
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
+        self.card_selected = {}
+        self.pbn = ""
 
         # tk variables
-        # self.xxx = tk.StringVar()
-
-        # Trace
-        # self.xxx.trace_add('write', self._value_changed)
+        for rank in RANKS:
+            for suit in SUITS:
+                self.card_selected[f"{rank}{suit}"] = tk.BooleanVar(
+                    value=False
+                )
 
         self._show()
 
@@ -64,9 +70,42 @@ class AppFrame:
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
         frame = ttk.Frame(master)
-        frame.rowconfigure(0, weight=1)
+        frame.rowconfigure(1, weight=1)
         frame.columnconfigure(0, weight=1)
 
+        row = 0
+        hand_frame = self._hand_frame(frame)
+        hand_frame.grid(row=row, column=0, sticky=tk.NSEW)
+        row += 1
+
+        selection_frame = self._selection_frame(frame)
+        selection_frame.grid(row=row, column=0, sticky=tk.NSEW)
+        row += 1
+
+        return frame
+
+    def _hand_frame(self, master: tk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(master, style="red.TFrame")
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
+        return frame
+
+    def _selection_frame(self, master: tk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(master)
+
+        for column, rank in enumerate(RANKS):
+            frame.columnconfigure(column, weight=1)
+            for row, suit in enumerate(SUITS):
+                frame.rowconfigure(row, weight=1)
+                check_button = ttk.Checkbutton(
+                    frame,
+                    text=f"{rank}{suit}",
+                    variable=self.card_selected[f"{rank}{suit}"],
+                    command=lambda rank=rank, suit=suit: self._card_checked(
+                        rank, suit
+                    ),
+                )
+                check_button.grid(row=row, column=column)
         return frame
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
@@ -78,11 +117,35 @@ class AppFrame:
         frame.enable(False)
         return frame
 
-    def _value_changed(self) -> bool:
+    def _card_checked(self, rank: str, suit: str) -> None:
+        cards = []
+        for key, value in self.card_selected.items():
+            if value.get():
+                cards.append(key)
+        self._value_changed(cards)
+        self._print_hand(cards)
+
+    def _print_hand(self, cards: list[str]) -> None:
+        self.pbn = self.to_pbn(cards)
+        print(self.pbn)
+
+    def to_pbn(self, cards: list[str]) -> str:
+        by_suit = {suit: [] for suit in SUITS}
+        for card in cards:
+            rank, suit = card[0], card[1]
+            by_suit[suit].append(rank)
+
+        suits = []
+        for suit in SUITS:
+            ranks = sorted(by_suit[suit], key=RANKS.index)
+            suits.append("".join(ranks))
+        return ".".join(suits)
+
+    def _value_changed(self, cards) -> bool:
         """
         Determine whether any configuration value has changed.
         """
-        enable = self.xxx.get() != config.xxx
+        enable = len(cards) > 0
         self.button_frame.enable(enable)
 
     def _process(self, *args) -> None:
