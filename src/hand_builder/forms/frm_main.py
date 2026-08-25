@@ -6,7 +6,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
 
-from bridgeobjects import Hand
+from bridgeobjects import CARD_IMAGES, Hand
 from clipboard import copy
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 from psiutils.buttons import ButtonFrame
@@ -23,9 +23,6 @@ txt = Text()
 RANKS = "AKQJT98765432"
 SUITS = "SHDC"
 
-IMAGE_DIR = (
-    "/home/jeff/projects/bfg/bfg_api/src/locale/en_GB/images/card_images"
-)
 SUIT_SYMBOLS = {
     "H": "♥",
     "D": "♦",
@@ -214,7 +211,7 @@ class AppFrame:
         hand = Hand(self.pbn.get())
         self.hand_data.set(f"{hand.shape} {hand.hcp}")
         for column, card in enumerate(hand.cards):
-            img = Image.open(Path(IMAGE_DIR, f"{card.name}.png"))
+            img = Image.open(CARD_IMAGES[card.name])
             scale = 100 / img.height
             img = img.resize(
                 (int(img.width * scale), int(img.height * scale)),
