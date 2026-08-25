@@ -44,10 +44,10 @@ class AppFrame:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.card_selected = {}
-        self.pbn = ""
         self.hand_frame = None
 
         # tk variables
+        self.pbn = tk.StringVar(value="")
         for rank in RANKS:
             for suit in SUITS:
                 self.card_selected[f"{rank}{suit}"] = tk.BooleanVar(
@@ -96,6 +96,10 @@ class AppFrame:
         self.hand_frame.grid(row=row, column=0, sticky=tk.NSEW)
         row += 1
 
+        pbn_frame = self._pbn_frame(frame)
+        pbn_frame.grid(row=row, column=0, sticky=tk.NSEW)
+        row += 1
+
         selection_frame = self._selection_frame(frame)
         selection_frame.grid(row=row, column=0, sticky=tk.NSEW)
         row += 1
@@ -108,6 +112,30 @@ class AppFrame:
         )
         frame.grid_propagate(False)
         frame.rowconfigure(0, weight=1)
+        return frame
+
+    def _pbn_frame(self, master: tk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(master)
+        label = ttk.Label(frame, text="PBN:")
+        label.pack()
+        copy_frame = self._pbn_copy_frame(frame)
+        copy_frame.pack()
+        return frame
+
+    def _pbn_copy_frame(self, master: tk.Frame) -> ttk.Frame:
+        frame = ttk.Frame(master)
+        entry = ttk.Entry(
+            frame,
+            width=50,
+            state="readonly",
+            takefocus=False,
+            textvariable=self.pbn,
+        )
+        entry.pack(side=tk.LEFT, padx=PAD)
+        button = ttk.Button(
+            frame, text="Copy", command=lambda: copy(self.pbn.get())
+        )
+        button.pack(side=tk.LEFT, padx=PAD)
         return frame
 
     def _selection_frame(self, master: tk.Frame) -> ttk.Frame:
@@ -137,7 +165,7 @@ class AppFrame:
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
-            frame.icon_button("build", self._process, True),
+            # frame.icon_button("build", self._process, True),
             frame.icon_button("close", self._dismiss),
         ]
         frame.enable(False)
@@ -146,7 +174,7 @@ class AppFrame:
     def _card_checked(self, rank: str, suit: str) -> None:
         cards = self._get_checked_cards()
 
-        self.pbn = self.to_pbn(cards)
+        self.pbn.set(self.to_pbn(cards))
         self._value_changed(cards)
         self._hand_image()
 
@@ -158,11 +186,11 @@ class AppFrame:
         return cards
 
     def _print_hand(self, cards: list[str]) -> None:
-        print(self.pbn)
+        print(self.pbn.get())
 
     def _hand_image(self) -> None:
         self._clear_hand_frame()
-        hand = Hand(self.pbn)
+        hand = Hand(self.pbn.get())
         for column, card in enumerate(hand.cards):
             img = Image.open(Path(IMAGE_DIR, f"{card.name}.png"))
             scale = 100 / img.height
@@ -220,9 +248,10 @@ class AppFrame:
         self.button_frame.enable(enable)
 
     def _process(self, *args) -> None:
-        cards = self._get_checked_cards()
-        self._print_hand(cards)
-        copy(self.pbn)
+        # cards = self._get_checked_cards()
+        # self._print_hand(cards)
+        # copy(self.pbn.get())
+        pass
 
     def _dismiss(self, *args) -> None:
         self.root.destroy()
