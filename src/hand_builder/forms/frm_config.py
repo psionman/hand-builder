@@ -1,27 +1,20 @@
 # forms/frm_config.py
-
 """ConfigFrame for Hand builder."""
 
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, ttk
 
-from psiutils.buttons import ButtonFrame, IconButton
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize
 
 from hand_builder import logger
-from hand_builder.config import config
+from hand_builder.buttons import ButtonFrame, IconButton
+from hand_builder.config import FIELDS, config
 from hand_builder.constants import APP_TITLE
 from hand_builder.text import Text
 
 txt = Text()
-
-FIELDS = {
-    "data_directory": tk.StringVar,
-    "my_int": tk.IntVar,
-    "my_bool": tk.BooleanVar,
-}
 
 
 class ConfigFrame:
@@ -39,31 +32,10 @@ class ConfigFrame:
         self.dialog_opened = False
         self.save_button = None
 
-        # tk variables and trace
-        for field, f_type in FIELDS.items():
-            if f_type is tk.StringVar:
-                setattr(self, field, self._stringvar(getattr(config, field)))
-            elif f_type is tk.IntVar:
-                setattr(self, field, self._intvar(getattr(config, field)))
-            elif f_type is tk.BooleanVar:
-                setattr(self, field, self._boolvar(getattr(config, field)))
+        # Assign tk variables and check for changes
+        config.assign_tk_variables(self, FIELDS, self._check_value_changed)
 
         self._show()
-
-    def _stringvar(self, value: str) -> tk.StringVar:
-        stringvar = tk.StringVar(value=value)
-        stringvar.trace_add("write", self._check_value_changed)
-        return stringvar
-
-    def _intvar(self, value: int) -> tk.IntVar:
-        intvar = tk.IntVar(value=value)
-        intvar.trace_add("write", self._check_value_changed)
-        return intvar
-
-    def _boolvar(self, value: bool) -> tk.BooleanVar:
-        boolvar = tk.BooleanVar(value=value)
-        boolvar.trace_add("write", self._check_value_changed)
-        return boolvar
 
     def _show(self) -> None:
         """
@@ -92,7 +64,7 @@ class ConfigFrame:
         root.bind("<Control-s>", self._save_config)
         root.bind("<FocusIn>", self._set_config)
         root.bind(
-            "<Configure>", lambda e: window_resize(root, __file__), config
+            "<Configure>", lambda e: window_resize(root, __file__, config)
         )
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
@@ -112,6 +84,14 @@ class ConfigFrame:
         button = IconButton(frame, txt.OPEN, "open", self._get_data_directory)
         button.grid(row=row, column=2, padx=PAD)
 
+        row += 1
+
+        label = ttk.Label(frame, text="Display cards")
+        label.grid(row=row, column=0, sticky=tk.E, padx=PAD, pady=PAD)
+
+        checkbox = ttk.Checkbutton(frame, variable=self.display_cards)
+        checkbox.grid(row=row, column=1, sticky=tk.W, padx=PAD, pady=PAD)
+
         return frame
 
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
@@ -119,22 +99,16 @@ class ConfigFrame:
         Create and return the button frame for the form.
         """
         frame = ButtonFrame(master, tk.HORIZONTAL)
-        self.save_button = IconButton(
-            frame, txt.SAVE, "save", self._save_config, True
-        )
-        frame.buttons = [
-            self.save_button,
-            frame.icon_button("exit", self._dismiss),
-        ]
+        frame.buttons = self._frame_button(frame)
+        self.save_button = frame.get_button("save")
         frame.enable(False)
         return frame
 
-    def _check_value_changed(self, *args) -> bool:
-        """
-        Enable or disable form buttons based on changes in configuration.
-        """
-        enable = bool(self._config_changes())
-        self.button_frame.enable(enable)
+    def _frame_button(self, frame: ButtonFrame) -> list[IconButton]:
+        return [
+            frame.icon_button("save", self._save_config, True, tag="save"),
+            frame.icon_button("exit", self._dismiss),
+        ]
 
     def _get_data_directory(self, *args) -> None:
         directory = self._get_directory(self.data_directory.get())
@@ -151,6 +125,13 @@ class ConfigFrame:
             parent=self.root,
         )
 
+    def _check_value_changed(self, *args) -> bool:
+        """
+        Enable or disable form buttons based on changes in configuration.
+        """
+        enable = bool(self._config_changes())
+        self.button_frame.enable(enable)
+
     def _save_config(self):
         changes = {
             field: f"(old value={change[0]}, new_value={change[1]})"
@@ -162,7 +143,8 @@ class ConfigFrame:
 
         logger.info("Config saved", changes=changes)
         self.save_button.disable()
-        return config.save()
+        config.save()
+        self._dismiss()
 
     def _config_changes(self) -> dict:
         stored = config.config
@@ -176,7 +158,6 @@ class ConfigFrame:
         if self.dialog_opened:
             self.dialog_opened = False
             return
-        config = read_config()
         for field in FIELDS:
             getattr(self, field).set(config.config[field])
 
@@ -184,4 +165,5 @@ class ConfigFrame:
         """
         Close the configuration window and terminate the application.
         """
+        self.root.grab_release()
         self.root.destroy()

@@ -5,34 +5,29 @@ A tkinter application for Hand builder.
 """
 
 import argparse
-import os
 import sys
 import tkinter as tk
 from tkinter import ttk
 
-import clipboard
-from dotenv import load_dotenv
 from forms.frm_main import AppFrame
 from psiutils.utilities import display_icon
 from psiutils.widgets import get_styles
 
-from hand_builder import __app_name__, __version__, logger
+from hand_builder import __app_name__, __version__
 from hand_builder.constants import APP_TITLE, ICON_FILE
 from hand_builder.module_caller import ModuleCaller
-
-load_dotenv()
-uv_python = os.getenv("UV_PYTHON")
-if not uv_python:
-    print(
-        "Have you run export UV_PYTHON=/usr/bin/python3? - copied to clipboard"
-    )
-    clipboard.copy("export UV_PYTHON=/usr/bin/python3")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=APP_TITLE)
     parser.add_argument(
         "module", nargs="?", default=None, help="Module to load"
+    )
+    parser.add_argument(
+        "primary", nargs="?", default=None, help="Primary argument"
+    )
+    parser.add_argument(
+        "secondary", nargs="?", default=None, help="Secondary argument"
     )
     args = parser.parse_args()
 
@@ -48,13 +43,9 @@ def main() -> None:
 
     if args.module:
         try:
-            dlg = ModuleCaller(root, args.module)
-            if dlg.invalid:
-                logger.error("Invalid module", module=args.module)
-                AppFrame(root)
-        except Exception as e:
-            logger.error(f"Failed to load module '{args.module}'", error=e)
-            AppFrame(root)
+            ModuleCaller(root, args)
+        except Exception:
+            root.destroy()
     else:
         AppFrame(root)
 

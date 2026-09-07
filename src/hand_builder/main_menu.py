@@ -8,8 +8,6 @@ from tkinter import messagebox
 
 from psiutils.menus import Menu, MenuItem
 
-MenuItem
-
 from hand_builder import (
     __app_name__,
     __author__,
@@ -53,6 +51,8 @@ class MainMenu:
     def _show_config_frame(self):
         """Display the config frame."""
         dlg = ConfigFrame(self)
+        dlg.root.transient(self.root)
+        dlg.root.grab_set()
         self.root.wait_window(dlg.root)
 
     def _help_menu_items(self) -> list:

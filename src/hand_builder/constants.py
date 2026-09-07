@@ -20,6 +20,12 @@ USER_DATA_DIR.mkdir(exist_ok=True)
 
 USER_DATA_FILE = Path(USER_DATA_DIR, "data.json")
 
+# Buttons
+PSIUTILS_DIR = user_data_dir("psiutils", __author__)
+BUTTONS_DIR = Path(PSIUTILS_DIR, "buttons")
+BUTTON_ICON_PATH = str(Path(BUTTONS_DIR, "icons"))
+BUTTON_CONFIG_PATH = str(Path(BUTTONS_DIR, "buttons.json"))
+
 # GUI
 APP_TITLE = "Hand builder"
 ICON_FILE = Path(Path(__file__).parent, "images", "cards-playing-outline.png")

@@ -9,10 +9,10 @@ from tkinter import ttk
 from bridgeobjects import CARD_IMAGES, Hand
 from clipboard import copy
 from PIL import Image, ImageDraw, ImageFont, ImageTk
-from psiutils.buttons import ButtonFrame
 from psiutils.constants import PAD
 from psiutils.utilities import window_resize
 
+from hand_builder.buttons import ButtonFrame
 from hand_builder.config import config
 from hand_builder.constants import APP_TITLE
 from hand_builder.main_menu import MainMenu
@@ -177,8 +177,8 @@ class AppFrame:
     def _button_frame(self, master: tk.Frame) -> tk.Frame:
         frame = ButtonFrame(master, tk.HORIZONTAL)
         frame.buttons = [
-            # frame.icon_button("build", self._process, True),
-            frame.icon_button("close", self._dismiss),
+            frame.icon_button("build", self._process, True),
+            frame.icon_button("cancel", self._dismiss),
         ]
         frame.enable(False)
         return frame
