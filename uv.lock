@@ -72,6 +72,7 @@ dependencies = [
     { name = "bridgeobjects" },
     { name = "clipboard" },
     { name = "dotenv" },
+    { name = "platformdirs" },
     { name = "psiconfig" },
     { name = "psiutils" },
 ]
@@ -88,8 +89,9 @@ requires-dist = [
     { name = "bridgeobjects", specifier = ">=0.1.35" },
     { name = "clipboard", specifier = ">=0.0.4" },
     { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "psiconfig", specifier = ">=0.0.16" },
-    { name = "psiutils", editable = "../../psi-utilities/psiutils" },
+    { name = "platformdirs", specifier = ">=4.11.7" },
+    { name = "psiconfig", specifier = ">=0.0.17" },
+    { name = "psiutils", specifier = ">=2.0.3" },
 ]
 
 [package.metadata.requires-dev]
@@ -210,6 +212,15 @@ wheels = [
 ]
 
 [[package]]
+name = "platformdirs"
+version = "4.11.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/b7/802a56eca9f2fac455b8bab5375a2647b0f0e14a2cd63ef077de3c4a7658/platformdirs-4.11.7.tar.gz", hash = "sha256:4f41487eeeeeb07f3a6625e61d9bc0ae6809f92d3386dbd74392fbb76108104d", size = 35127, upload-time = "2026-09-01T13:35:10.502Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/6e/80993e10a0482f630cef528635789233224f36b1ffd11592aa15d13ff9ce/platformdirs-4.11.7-py3-none-any.whl", hash = "sha256:8a02cb259042c79d1cd0450facc2fe6dc9d303ae7901afbe33bf8ea0b188cef6", size = 23938, upload-time = "2026-09-01T13:35:09.02Z" },
+]
+
+[[package]]
 name = "pluggy"
 version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -252,8 +263,8 @@ wheels = [
 
 [[package]]
 name = "psiutils"
-version = "1.0.9"
-source = { editable = "../../psi-utilities/psiutils" }
+version = "2.0.3"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs" },
     { name = "iniconfig" },
@@ -274,31 +285,10 @@ dependencies = [
     { name = "tomli" },
     { name = "tomli-w" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "appdirs", specifier = ">=1.4.4" },
-    { name = "iniconfig", specifier = ">=2.1.0" },
-    { name = "markdown", specifier = ">=3.8.2" },
-    { name = "packaging", specifier = ">=25.0" },
-    { name = "pillow", specifier = ">=11.3.0" },
-    { name = "pluggy", specifier = ">=1.6.0" },
-    { name = "psi-toml", specifier = ">=0.0.12" },
-    { name = "psiconfig", specifier = ">=0.0.14" },
-    { name = "pycairo", specifier = ">=1.28.0" },
-    { name = "pygments", specifier = ">=2.19.2" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.15.15" },
-    { name = "structlog", specifier = ">=25.4.0" },
-    { name = "tkcalendar", specifier = ">=1.6.1" },
-    { name = "tkinterweb", specifier = ">=4.4.4" },
-    { name = "tkinterweb-tkhtml", specifier = ">=1.1.1" },
-    { name = "tomli", specifier = ">=2.2.1" },
-    { name = "tomli-w", specifier = ">=1.2.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/17/70/cd02fdfda4e556e53878449650af3e3bac46c585cf8fb9df3095b7fd83b6/psiutils-2.0.3.tar.gz", hash = "sha256:03de0429425156a1848f1a9e647c31a24e29bb9e60f2b193e4a0fedee86b36fe", size = 238262, upload-time = "2026-09-08T09:38:38.28Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/98/4e50b925695b6f9ef7b0ecd52b4bcd74e997e6a028e0fc78a2780ea5b690/psiutils-2.0.3-py3-none-any.whl", hash = "sha256:b5326756ebc98d997acea40a9801da3382ced72833b36c7702a77b6127cb3393", size = 266288, upload-time = "2026-09-08T09:38:36.765Z" },
 ]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest" }]
 
 [[package]]
 name = "pycairo"

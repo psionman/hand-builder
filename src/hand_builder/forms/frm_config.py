@@ -12,6 +12,7 @@ from hand_builder import logger
 from hand_builder.buttons import ButtonFrame, IconButton
 from hand_builder.config import FIELDS, config
 from hand_builder.constants import APP_TITLE
+from hand_builder.state import state
 from hand_builder.text import Text
 
 txt = Text()
@@ -42,7 +43,7 @@ class ConfigFrame:
         Initialize and display the configuration form GUI.
         """
         root = self.root
-        root.geometry(config.geometry[Path(__file__).stem])
+        root.geometry(state.geometry[Path(__file__).stem])
         root.transient(self.parent.root)
         root.title(f"{APP_TITLE} - {txt.CONFIG}")
 
@@ -64,7 +65,7 @@ class ConfigFrame:
         root.bind("<Control-s>", self._save_config)
         root.bind("<FocusIn>", self._set_config)
         root.bind(
-            "<Configure>", lambda e: window_resize(root, __file__, config)
+            "<Configure>", lambda e: window_resize(root, __file__, state)
         )
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
@@ -81,7 +82,9 @@ class ConfigFrame:
         entry = ttk.Entry(frame, textvariable=self.data_directory)
         entry.grid(row=row, column=1, sticky=tk.EW)
 
-        button = IconButton(frame, txt.OPEN, "open", self._get_data_directory)
+        button = IconButton(
+            frame, txt.OPEN, "open-folder", self._get_data_directory
+        )
         button.grid(row=row, column=2, padx=PAD)
 
         row += 1

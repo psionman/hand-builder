@@ -11,8 +11,9 @@ dependencies = [
     "bridgeobjects>=0.1.35",
     "clipboard>=0.0.4",
     "dotenv>=0.9.9",
-    "psiconfig>=0.0.16",
-    "psiutils>=1.0.4",
+    "platformdirs>=4.11.7",
+    "psiconfig>=0.0.17",
+    "psiutils>=2.0.3",
 ]
 
 [dependency-groups]
@@ -32,6 +33,3 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "B", "UP"]
-
-[tool.uv.sources]
-psiutils = { path = "../../psi-utilities/psiutils", editable = true }

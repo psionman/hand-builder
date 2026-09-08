@@ -13,15 +13,7 @@ FIELDS = {
     "display_cards": ConfigField(bool, True),
 }
 
-DEFAULT_CONFIG = {
-    "geometry": {
-        "frm_main": "500x600",
-        "frm_config": "700x300",
-    },
-}
-
-for name, field in FIELDS.items():
-    DEFAULT_CONFIG[name] = field.default_value
+DEFAULT_CONFIG = {name: field.default_value for name, field in FIELDS.items()}
 
 
 def read_config(restore_defaults: bool = False) -> TomlConfig:

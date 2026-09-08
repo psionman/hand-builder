@@ -13,9 +13,9 @@ from psiutils.constants import PAD
 from psiutils.utilities import window_resize
 
 from hand_builder.buttons import ButtonFrame
-from hand_builder.config import config
 from hand_builder.constants import APP_TITLE
 from hand_builder.main_menu import MainMenu
+from hand_builder.state import state
 from hand_builder.text import Text
 
 txt = Text()
@@ -57,7 +57,7 @@ class AppFrame:
 
     def _show(self):
         root = self.root
-        root.geometry(config.geometry[Path(__file__).stem])
+        root.geometry(state.geometry[Path(__file__).stem])
         root.title(APP_TITLE)
 
         main_menu = MainMenu(self)
@@ -82,7 +82,7 @@ class AppFrame:
         root.bind("<Control-o>", self._process)
         root.bind(
             "<Configure>",
-            lambda e: window_resize(root, __file__, config),
+            lambda e: window_resize(root, __file__, state),
         )
 
     def _main_frame(self, master: tk.Frame) -> ttk.Frame:
